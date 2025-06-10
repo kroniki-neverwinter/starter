@@ -1,0 +1,32 @@
+version: "3.9"
+
+services:
+  nwn:
+    hostname: kn
+    build:
+      context: ./
+    image: mefi100/kn-server
+    restart: unless-stopped
+    env_file: ${PWD-.}/dev.env
+    stdin_open: true
+    tty: true
+    volumes:
+      - ${PWD-.}/nwn/tlk/:/nwn/home/tlk
+      - ${PWD-.}/nwn/modules/:/nwn/home/modules
+      - ${PWD-.}/nwn/hak/:/nwn/home/hak
+      - ${PWD-.}/nwn/development/:/nwn/home/development
+      - ${PWD-.}/nwn/data/:/nwn/data/lang/pl/data
+      - ${PWD-.}/nwn/servervault/:/nwn/home/servervault
+      - ${PWD-.}/nwn/settings.tml:/nwn/home/settings.tml
+    depends_on:
+      - redis
+    ports:
+      - "5121:5121/udp"
+  redis:
+    image: "redis:alpine"
+    command: redis-server --appendonly yes
+    restart: always
+    volumes:
+      - ${PWD-.}/redis:/data
+    environment:
+      - REDIS_REPLICATION_MODE=master
